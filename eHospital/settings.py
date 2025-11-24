@@ -8,29 +8,36 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env (local dev)
+# Load environment variables from .env (local dev ke liye)
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# Render / production ke liye SECRET_KEY env se lo, warna local ke liye default
+# ===========================
+# Security / Debug Settings
+# ===========================
+
+# SECRET_KEY: Render/production ke liye env se aayega
+# .env ya Render env me SECRET_KEY set karna better hai
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
-    "django-insecure-7mecxf_#1#10b_$o(*r$t(qzonh$s6kn56)6#r8*!ob&uit-mi",
+    "dev-secret-key-change-me",  # local dev ke liye fallback
 )
 
-# DEBUG ko env se control karo (Render pe DEBUG=False rakh sakte ho)
+# DEBUG: env se control karo (Render pe DEBUG=False rakhna)
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-# Allowed hosts – Render ke liye .onrender.com already included hai
+# Allowed hosts – Render ke liye .onrender.com include hai
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
     "127.0.0.1 localhost .onrender.com",
 ).split()
 
-# Application definition
+# ===========================
+# Application Definition
+# ===========================
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -38,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # your apps
     "base",
     "registration",
     "crispy_forms",
@@ -49,12 +57,12 @@ MIDDLEWARE = [
     # Whitenoise for static files in production
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "eHospital.urls"
@@ -62,7 +70,7 @@ ROOT_URLCONF = "eHospital.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -76,8 +84,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "eHospital.wsgi.application"
 
-
+# ===========================
 # Database
+# ===========================
+
+# Render ya production ke liye DATABASE_URL use karo
 if os.getenv("DATABASE_URL"):
     import dj_database_url
 
@@ -85,7 +96,7 @@ if os.getenv("DATABASE_URL"):
         "default": dj_database_url.config(default=os.getenv("DATABASE_URL"))
     }
 else:
-    # Default SQLite
+    # Default SQLite for local dev
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -93,7 +104,10 @@ else:
         }
     }
 
-# Password validation
+# ===========================
+# Password Validation
+# ===========================
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -109,31 +123,55 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# ===========================
 # Internationalization
+# ===========================
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# IMPORTANT for Render
+# ===========================
+# Static Files (CSS, JS, Images)
+# ===========================
+
+# URL prefix for static files
 STATIC_URL = "static/"
+
+# Jahan collectstatic sab static files ko dump karega (Render ke liye zaroori)
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Whitenoise static files storage
+# Agar tumhara ek "static" folder project root me hai (optional)
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Whitenoise storage backend (compressed + hashed filenames)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# ===========================
 # Default primary key field type
+# ===========================
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ===========================
+# Auth / Login
+# ===========================
 
 AUTH_USER_MODEL = "registration.User"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
-# Email configuration
+# ===========================
+# Email Configuration
+# ===========================
+
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -143,6 +181,9 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 MAX_PATIENTS_PER_DOCTOR = os.getenv("MAX_PATIENTS_PER_DOCTOR")
 
-# NodeMCU configuration
+# ===========================
+# NodeMCU Configuration
+# ===========================
+
 NODE_MCU_SERVER = "http://192.168.0.23:8000"  # Your NodeMCU server address
 NODE_MCU_USER_ID_ENDPOINT = "/update-user-id/"  # Endpoint to receive user ID
