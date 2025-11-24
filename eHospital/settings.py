@@ -137,7 +137,7 @@ USE_TZ = True
 # ===========================
 
 # URL prefix for static files
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
 # Jahan collectstatic sab static files ko dump karega (Render ke liye zaroori)
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -149,6 +149,9 @@ STATICFILES_DIRS = [
 
 # Whitenoise storage backend (compressed + hashed filenames)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Whitenoise middleware already included in MIDDLEWARE above
+
 
 # ===========================
 # Default primary key field type
