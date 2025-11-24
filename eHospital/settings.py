@@ -27,7 +27,9 @@ SECRET_KEY = 'django-insecure-7mecxf_#1#10b_$o(*r$t(qzonh$s6kn56)6#r8*!ob&uit-mi
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+import os
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1 localhost .onrender.com').split()
 
 
 # Application definition
@@ -79,16 +81,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eHospital.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+import os
 
-# using the default SQLite database for simplicity
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv('DATABASE_URL'):
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
     }
-}
+else:
+    # using the default SQLite database for simplicity
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 # to use PostgreSQL, uncomment the following lines and configure your database settings
 """
 DATABASES = {
