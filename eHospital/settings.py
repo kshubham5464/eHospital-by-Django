@@ -140,7 +140,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 # Jahan collectstatic sab static files ko dump karega (Render ke liye zaroori)
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = str(BASE_DIR / "staticfiles")
 
 # Agar tumhara ek "static" folder project root me hai (optional)
 STATICFILES_DIRS = [
